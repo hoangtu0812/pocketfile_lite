@@ -1,26 +1,29 @@
 # ─── Stage 1: Builder ─────────────────────────────────────────
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.11-alpine AS builder
 
 WORKDIR /build
 
 # Install Python dependencies into a virtual environment
-# We install build-essential and dev headers because Portainer environments
-# (especially varied architectures like ARM) might need to compile wheels from source.
+# We install build essentials (gcc, musl-dev) and postgresql-dev because Alpine 
+# heavily relies on building from source for packages like psycopg2 or bcrypt.
 COPY requirements.txt .
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache \
     gcc \
-    python3-dev \
-    libpq-dev \
+    musl-dev \
     libffi-dev \
-    && rm -rf /var/lib/apt/lists/* \
+    postgresql-dev \
+    python3-dev \
     && python -m venv /opt/venv \
     && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────
-FROM python:3.11-slim-bookworm AS runtime
+FROM python:3.11-alpine AS runtime
 
 WORKDIR /app
+
+# Install required system libraries for psycopg2 to run on Alpine
+RUN apk add --no-cache libpq curl
 
 # Copy virtualenv from builder
 COPY --from=builder /opt/venv /opt/venv
@@ -29,9 +32,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy application code
 COPY . .
 
-# Create non-root user for security
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
-    && mkdir -p /storage && chown -R appuser:appgroup /app /storage
+# Create non-root user for security (Alpine compatible)
+RUN adduser -D -s /bin/sh -h /app appuser \
+    && mkdir -p /storage && chown -R appuser:appuser /app /storage
 
 USER appuser
 
