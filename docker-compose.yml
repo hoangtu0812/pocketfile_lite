@@ -51,7 +51,7 @@ services:
       - apk_storage:/storage
       - ./backend/alembic:/app/alembic
     ports:
-      - "8000:8000"
+      - "8111:8111"
     networks:
       - apk_net
     healthcheck:
