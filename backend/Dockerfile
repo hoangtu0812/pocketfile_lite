@@ -8,9 +8,14 @@ WORKDIR /build
 # All our Python dependencies (bcrypt, psycopg2-binary, PyJWT) provide 
 # pre-compiled wheels for modern Linux architectures.
 COPY requirements.txt .
+# Setting pip parameters to bypass LXC DNS and Timeout drop issues
+ENV PIP_DEFAULT_TIMEOUT=100 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+
 RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
-    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+    && /opt/venv/bin/pip install -r requirements.txt
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────
 FROM python:3.11-slim-bookworm AS runtime
