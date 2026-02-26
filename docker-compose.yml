@@ -1,0 +1,72 @@
+services:
+  # ─── PostgreSQL ───────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: apk_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-apk_user}
+      POSTGRES_PASSWORD: ${DB_PASS:-apk_pass}
+      POSTGRES_DB: ${DB_NAME:-apk_manager}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-apk_user} -d ${DB_NAME:-apk_manager}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - apk_net
+
+  # ─── Backend ─────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apk_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-apk_user}
+      DB_PASS: ${DB_PASS:-apk_pass}
+      DB_NAME: ${DB_NAME:-apk_manager}
+      # Security
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-use-long-random-key}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      # Storage
+      STORAGE_PATH: /storage
+      MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-524288000}
+      # App
+      DEBUG: ${DEBUG:-false}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+    volumes:
+      - apk_storage:/storage
+      - ./backend/alembic:/app/alembic
+    ports:
+      - "8000:8000"
+    networks:
+      - apk_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/docs')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  pg_data:
+    driver: local
+  apk_storage:
+    driver: local
+
+networks:
+  apk_net:
+    driver: bridge
