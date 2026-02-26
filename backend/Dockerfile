@@ -4,9 +4,16 @@ FROM python:3.11-slim-bookworm AS builder
 WORKDIR /build
 
 # Install Python dependencies into a virtual environment
-# python-jose/cryptography often require build tools if wheels are not available
+# We install build-essential and dev headers because Portainer environments
+# (especially varied architectures like ARM) might need to compile wheels from source.
 COPY requirements.txt .
-RUN python -m venv /opt/venv \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    libpq-dev \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m venv /opt/venv \
     && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
