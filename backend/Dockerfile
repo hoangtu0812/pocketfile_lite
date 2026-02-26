@@ -4,11 +4,10 @@ FROM python:3.11-slim-bookworm AS builder
 WORKDIR /build
 
 # Install Python dependencies into a virtual environment
-# Note: psycopg2-binary and bcrypt provide pre-compiled wheels for Debian glibc,
-# so we don't need gcc or libpq-dev here.
+# python-jose/cryptography often require build tools if wheels are not available
 COPY requirements.txt .
 RUN python -m venv /opt/venv \
-    && /opt/venv/bin/pip install --upgrade pip \
+    && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────

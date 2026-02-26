@@ -5,7 +5,7 @@ Security utilities: JWT token creation/verification and password hashing.
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from jose import JWTError, jwt
+import jwt
 from passlib.context import CryptContext
 
 from app.core.config import get_settings
@@ -59,5 +59,5 @@ def decode_access_token(token: str) -> Optional[dict]:
     """
     try:
         return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except JWTError:
+    except (jwt.DecodeError, jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
