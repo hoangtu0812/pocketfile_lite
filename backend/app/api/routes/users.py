@@ -37,7 +37,7 @@ def update_user_password(
     """Update a user's password. Admin only."""
     service = UserService(db)
     user = service.update_password(user_id, payload.password)
-    return BaseResponse.ok(userRead=user)
+    return BaseResponse.ok(user)
 
 
 @router.get("/users/{user_id}/projects", response_model=BaseResponse[list[int]])
