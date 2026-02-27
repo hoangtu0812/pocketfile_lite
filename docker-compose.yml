@@ -49,7 +49,6 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
     volumes:
       - apk_storage:/storage
-      - ./backend/alembic:/app/alembic
     ports:
       - "8111:8000"
     networks:
