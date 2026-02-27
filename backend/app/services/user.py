@@ -54,7 +54,7 @@ class UserService:
             raise HTTPException(status_code=404, detail="User not found")
         
         from app.core.security import hash_password
-        target_user.hashed_password = hash_password(new_password)
+        target_user.password_hash = hash_password(new_password)
         self.repo.update(target_user)
         return target_user
 
