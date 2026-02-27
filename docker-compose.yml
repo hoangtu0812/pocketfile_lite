@@ -51,11 +51,11 @@ services:
       - apk_storage:/storage
       - ./backend/alembic:/app/alembic
     ports:
-      - "8111:8111"
+      - "8111:8000"
     networks:
       - apk_net
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/api/docs')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/docs')"]
       interval: 30s
       timeout: 10s
       retries: 3
