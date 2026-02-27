@@ -33,10 +33,15 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
-        return (
-            f"postgresql+pg8000://{self.DB_USER}:{self.DB_PASS}"
-            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        )
+        from sqlalchemy import URL
+        return str(URL.create(
+            drivername="postgresql+pg8000",
+            username=self.DB_USER,
+            password=self.DB_PASS,
+            host=self.DB_HOST,
+            port=self.DB_PORT,
+            database=self.DB_NAME,
+        ))
 
     # ─── JWT ──────────────────────────────────────────────────────────────
     SECRET_KEY: str = "change-me-in-production"
