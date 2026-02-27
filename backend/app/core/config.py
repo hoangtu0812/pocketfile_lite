@@ -32,16 +32,16 @@ class Settings(BaseSettings):
     DB_NAME: str = "apk_manager"
 
     @property
-    def DATABASE_URL(self) -> str:
+    def DATABASE_URL(self):
         from sqlalchemy import URL
-        return str(URL.create(
+        return URL.create(
             drivername="postgresql+pg8000",
             username=self.DB_USER,
             password=self.DB_PASS,
             host=self.DB_HOST,
             port=self.DB_PORT,
             database=self.DB_NAME,
-        ))
+        )
 
     # ─── JWT ──────────────────────────────────────────────────────────────
     SECRET_KEY: str = "change-me-in-production"
