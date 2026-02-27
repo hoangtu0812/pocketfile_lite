@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-apk_user}
-      POSTGRES_PASSWORD: "Hoangtu0812@"
+      POSTGRES_PASSWORD: ${DB_PASS:-apk_pass}
       POSTGRES_DB: ${DB_NAME:-apk_manager}
     volumes:
       - pg_data_v5:/var/lib/postgresql/data
@@ -35,7 +35,7 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: ${DB_USER:-apk_user}
-      DB_PASS: "Hoangtu0812@"
+      DB_PASS: ${DB_PASS:-apk_pass}
       DB_NAME: ${DB_NAME:-apk_manager}
       # Security
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production-use-long-random-key}
