@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS:-apk_pass}
       POSTGRES_DB: ${DB_NAME:-apk_manager}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_v2:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -62,7 +62,7 @@ services:
       start_period: 20s
 
 volumes:
-  pg_data:
+  pg_data_v2:
     driver: local
   apk_storage:
     driver: local
@@ -70,3 +70,4 @@ volumes:
 networks:
   apk_net:
     driver: bridge
+                                                                                                                                                                                                                                                                                      
